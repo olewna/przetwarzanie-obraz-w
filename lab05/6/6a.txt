@@ -1,0 +1,7 @@
+a)
+w ImageJ jest Process -> Noise -> Remove Outliers. Wtedy wybieramy threshold = 10 i radius = 2. Najpierw dark, potem bright.
+
+b)
+Process -> Filter -> Median, radius = 2
+
+c)

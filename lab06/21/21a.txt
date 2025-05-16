@@ -1,0 +1,4 @@
+1. konwersja z obrazu szarego na obraz binarny, z zastosowaniem thresholdingu = 203
+2. określenie wysokości taktu (32 piksele)
+3. wykorzystanie metody hit-or-miss z elementem strukturalnym 34x3, gdzie w teorii dolne i górne piksele powinny być białe (255), pionowa środkowa linia oprócz pierwszego i ostatniego piksela powinna być czarna (0). Co więcej, zaczynając od pierwszego czarnego piksela u góry, ten po lewej oraz prawej też powinien byc czarny, i co 8 pikseli (32/4) też powinien być czarny piksel. Za to odwrotnością powinno być, że pomiędzy pierwszym czarnym pikselem od góry po lewej oraz prawej, a kolejnym x+8 czarnym pikselem powinien być biały piksel. Reszta zostaje uznana jako *, ponieważ przez szum można nie znaleźć taktu.
+

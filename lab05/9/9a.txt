@@ -1,0 +1,9 @@
+podzielic obrazy na kanaly red green blue w imageju
+
+potem zapisac kanaly wzorca jako pliki tekstowe
+
+wczytac te pliki tekstowe jako macierz do CONVOLVE
+
+pomnożyć ze sobą obrazy
+
+zrobić thresholding

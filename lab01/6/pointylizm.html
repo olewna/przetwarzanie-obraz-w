@@ -1,0 +1,61 @@
+<body>
+    <canvas id="canvas"></canvas>
+    <input type="file" id="upload">
+    <button id="download" style="display: none;">Pobierz obraz</button>
+    
+    <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const upload = document.getElementById("upload");
+    const downloadButton = document.getElementById("download");
+    
+    upload.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+    
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+    
+            applyPointillism();
+            downloadButton.style.display = "block";
+        };
+    });
+    
+    function applyPointillism() {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+    
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+        const dotCount = canvas.width * canvas.height * 0.1; // Ilość kropek (5% pikseli)
+    
+        for (let i = 0; i < dotCount; i++) {
+            const x = Math.floor(Math.random() * canvas.width);
+            const y = Math.floor(Math.random() * canvas.height);
+            const index = (y * canvas.width + x) * 4;
+    
+            const r = data[index];
+            const g = data[index + 1];
+            const b = data[index + 2];
+    
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            const radius = Math.random() * 20 + 1; // Losowy rozmiar kropki
+    
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    downloadButton.addEventListener("click", function () {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "nowy.png";
+        link.click();
+    });
+    </script>
+</body>

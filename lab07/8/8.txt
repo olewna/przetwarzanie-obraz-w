@@ -1,0 +1,7 @@
+1. gausian blur o=2
+2. rozdzielić na 3 kanały kolorów
+3. PRACOWAĆ NA 32-BITACH
+4. wyliczyć filtrami sobela Rx, Ry itp
+5. połączyć Rx Gx Bx w gx z uzyciem Image Calculator na MAXIMUM
+6. gradient na wikipedii (https://en.wikipedia.org/wiki/Canny_edge_detector)
+7. kierunki gradientów (https://medium.com/data-science/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123)

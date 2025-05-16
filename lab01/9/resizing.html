@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rescaling</title>
+</head>
+
+<body>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="nearestNeighbor()">Scale using Nearest Neighbor</button>
+    <button onclick="bilinearInterpolation()">Scale using Bilinear Interpolation</button>
+
+    <br><br>
+
+    <canvas id="outputCanvas1" width="600" height="360"></canvas>
+    <a id="downloadLink1" download="nearest_neighbor_scaled_image.jpg">Download Nearest Neighbor Scaled Image</a>
+
+    <br><br>
+
+    <canvas id="outputCanvas2" width="600" height="360"></canvas>
+    <a id="downloadLink2" download="bilinear_interpolation_scaled_image.jpg">Download Bilinear Interpolation Scaled
+        Image</a>
+
+    <script>
+        document.getElementById("fileInput").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const img = new Image();
+                    img.onload = function () {
+                        window.loadedImage = img; // Przechowujemy wczytany obraz
+                    };
+                    img.src = URL.createObjectURL(file);
+                }
+            });
+
+            // Funkcja pobiera piksel z obrazu wejściowego
+            function getPixel(imageData, width, x, y) {
+                let index = (y * width + x) * 4;
+                return [
+                    imageData.data[index],     // R
+                    imageData.data[index + 1], // G
+                    imageData.data[index + 2], // B
+                    imageData.data[index + 3]  // A
+                ];
+            }
+
+            // Funkcja zapisuje piksel do obrazu wyjściowego
+            function setPixel(imageData, width, x, y, pixel) {
+                let index = (y * width + x) * 4;
+                imageData.data[index] = pixel[0];
+                imageData.data[index + 1] = pixel[1];
+                imageData.data[index + 2] = pixel[2];
+                imageData.data[index + 3] = pixel[3];
+            }
+
+          function bilinearInterpolation() {
+                if (!window.loadedImage) return alert("Najpierw wybierz obraz!");
+
+                const canvas = document.getElementById("outputCanvas2");
+                const ctx = canvas.getContext("2d");
+                const img = window.loadedImage;
+
+                const width = 600, height = 360;
+                const tempCanvas = document.createElement("canvas");
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                const tempCtx = tempCanvas.getContext("2d");
+                tempCtx.drawImage(img, 0, 0);
+
+                const inputData = tempCtx.getImageData(0, 0, img.width, img.height);
+                const outputData = ctx.createImageData(width, height);
+
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        let srcX = x * (img.width / width);
+                        let srcY = y * (img.height / height);
+
+                        let x1 = Math.floor(srcX), x2 = Math.min(x1 + 1, img.width - 1);
+                        let y1 = Math.floor(srcY), y2 = Math.min(y1 + 1, img.height - 1);
+
+                        let p1 = getPixel(inputData, img.width, x1, y1);
+                        let p2 = getPixel(inputData, img.width, x2, y1);
+                        let p3 = getPixel(inputData, img.width, x1, y2);
+                        let p4 = getPixel(inputData, img.width, x2, y2);
+
+                        let fourPixels = [p1, p2, p3, p4];
+
+                        let fourPixelsWithBrightness = fourPixels.map(x => {
+                            return [x[0], x[1], x[2], x[3], getBrightness(x)]
+                        }).sort((a, b) => a[4] - b[4]);
+
+                        let minBrightness = fourPixelsWithBrightness[3];
+                        let maxBrightness = fourPixelsWithBrightness[0];
+                        let avgBrightness = minBrightness.map((x, id) => (x+maxBrightness[id]) / 2);
+
+
+                        setPixel(outputData, width, x, y, [Math.round(avgBrightness[0]), Math.round(avgBrightness[1]), Math.round(avgBrightness[2]), 255]);
+                    }
+                }
+
+                ctx.putImageData(outputData, 0, 0);
+                document.getElementById("downloadLink2").href = canvas.toDataURL();
+            }
+
+            function getBrightness(pixel) {
+                return 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+            }
+    </script>
+</body>
+
+</html>
