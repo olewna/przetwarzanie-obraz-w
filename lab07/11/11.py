@@ -34,16 +34,9 @@ hxy = np.array([[-1,0,1],[0,0,0],[1,0,-1]], dtype=np.float32)
 gxx = cv2.filter2D(blurred.astype(np.float32), -1, hxx)
 gyy = cv2.filter2D(blurred.astype(np.float32), -1, hyy)
 gxy = cv2.filter2D(blurred.astype(np.float32), -1, hxy)
-# cv2.imwrite("lab07/11/11b_gxx.png", gxx)
-# cv2.imwrite("lab07/11/11b_gyy.png", gyy)
-# cv2.imwrite("lab07/11/11b_gxy.png", gxy)
-
-def Newton(n, k):
-    Wynik = 1
-
-    for i in range(1, k + 1):
-        Wynik = Wynik * (n - i + 1) / i
-    return Wynik
+# cv2.imwrite("lab07/11/11b_gxx.png", gxx*255)
+# cv2.imwrite("lab07/11/11b_gyy.png", gyy*255)
+# cv2.imwrite("lab07/11/11b_gxy.png", gxy*255)
 
 def Hesse(gxx, gyy, gxy):
     M, N = gxx.shape
@@ -55,14 +48,23 @@ def Hesse(gxx, gyy, gxy):
             H = np.array([[gxx[m][n], gxy[m][n]], [gxy[m][n], gyy[m][n]]])
             k1 = ((1/2)*(H[0][0] + H[1][1])) - ((1/4) * (np.sqrt((np.power(H[0][0] + H[1][1], 2)) + (4 * np.power(H[0][1], 2)))))
             Z[m][n] = np.abs(k1)
-            print(np.floor(k1 - H[0][0]))
-            theta[m][n] = Newton(np.floor(H[0][1]), np.floor(k1 - H[0][0]))
-    return (Z, theta)
+            x = H[0][1]
+            y = k1 - H[0][0]
+            theta[m][n] = (np.degrees(np.arctan2(y, x)) + 360) % 360
+            if (m == 100 and n >100 and n < 120):
+                print(f'{k1} - {H[0][0]} = {k1 - H[0][0]}')
+                print(f'Theta: ({m},{n}) = {theta[m][n]}')
+                print(f'Theta ABS: {np.abs(theta[m][n])}')
+    return (Z, np.abs(theta))
 
 k1_curve, theta = Hesse(gxx, gyy, gxy)
 # print(np.min(k1_curve))
 # print(np.max(k1_curve))
+# print(np.min(theta))
+# print(np.max(theta))
 
+cv2.imwrite("lab07/11/11c_k1.png", k1_curve*255)
+cv2.imwrite("lab07/11/11c_theta.png", theta)
 cv2.imshow("XD3", theta)
 cv2.waitKey()
 cv2.destroyAllWindows()
